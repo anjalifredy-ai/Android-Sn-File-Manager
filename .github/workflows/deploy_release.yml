@@ -1,4 +1,4 @@
-name: Android APK Build
+name: Android Build
 
 on:
   workflow_dispatch:
@@ -12,8 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -22,16 +21,20 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-          cache: gradle
 
-      - name: Grant execute permission
+      - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Create dummy google-services.json
+        run: |
+          mkdir -p app
+          echo '{}' > app/google-services.json
+
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Android-Sn-File-Manager-Debug-APK
+          name: APK
           path: app/build/outputs/apk/debug/*.apk
